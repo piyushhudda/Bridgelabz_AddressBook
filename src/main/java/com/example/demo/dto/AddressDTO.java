@@ -1,6 +1,7 @@
 package com.example.demo.dto;
 
 public class AddressDTO {
+	long id;
  private String name;
  private String email;
  private String phone;
@@ -9,7 +10,8 @@ public class AddressDTO {
  public AddressDTO() {}
 
  // Constructor with fields
- public AddressDTO(String name, String email, String phone) {
+ public AddressDTO(long id, String name, String email, String phone) {
+	 this.id = id;
      this.name = name;
      this.email = email;
      this.phone = phone;
@@ -39,4 +41,7 @@ public class AddressDTO {
  public void setPhone(String phone) {
      this.phone = phone;
  }
+ public Long getId() { return id; }
+ public void setId(Long id) { this.id = id; }
+ 
 }

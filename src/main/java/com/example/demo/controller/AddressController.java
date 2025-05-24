@@ -2,7 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.AddressDTO;
 import com.example.demo.model.Address;
-import com.example.demo.repository.AddressRepository;
+import com.example.demo.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
 public class AddressController {
 
     @Autowired
-    private AddressRepository addressRepository;
-    
- // Convert Address entity to DTO
+    private AddressService addressService;
+
+    // Convert Address entity to DTO
     private AddressDTO convertToDTO(Address address) {
-        return new AddressDTO(address.getName(), address.getEmail(), address.getPhone());
+        return new AddressDTO(address.getId(), address.getName(), address.getEmail(), address.getPhone());
     }
 
     // Convert DTO to Address entity
@@ -31,10 +31,10 @@ public class AddressController {
         return address;
     }
 
- // GET all addresses
+    // GET all addresses
     @GetMapping
     public ResponseEntity<List<AddressDTO>> getAllAddresses() {
-        List<Address> addresses = addressRepository.findAll();
+        List<Address> addresses = addressService.getAllAddresses();
         List<AddressDTO> dtos = addresses.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -43,39 +43,43 @@ public class AddressController {
 
     // Get address by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Address> getAddress(@PathVariable Long id) {
-        return addressRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AddressDTO> getAddress(@PathVariable Long id) {
+        Address address = addressService.getAddressById(id);
+        if (address != null) {
+            return ResponseEntity.ok(convertToDTO(address));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // POST create new address
     @PostMapping
     public ResponseEntity<AddressDTO> createAddress(@RequestBody AddressDTO addressDTO) {
-        Address address = convertToEntity(addressDTO);
-        Address savedAddress = addressRepository.save(address);
-        return ResponseEntity.ok(convertToDTO(savedAddress));
+        Address createdAddress = addressService.createAddress(addressDTO);
+        return ResponseEntity.ok(convertToDTO(createdAddress));
     }
 
     // Update existing address
     @PutMapping("/{id}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Long id, @RequestBody Address addressDetails) {
-        return addressRepository.findById(id).map(address -> {
-            address.setName(addressDetails.getName());
-            address.setPhone(addressDetails.getPhone());
-            address.setEmail(addressDetails.getEmail());
-            address.setAddressLine(addressDetails.getAddressLine());
-            Address updatedAddress = addressRepository.save(address);
-            return ResponseEntity.ok(updatedAddress);
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long id, @RequestBody AddressDTO addressDTO) {
+        Address updatedAddress = addressService.updateAddress(id, addressDTO);
+        if (updatedAddress != null) {
+            return ResponseEntity.ok(convertToDTO(updatedAddress));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Delete address
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
-        return addressRepository.findById(id).map(address -> {
-            addressRepository.delete(address);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+        // Check if address exists before delete
+        Address address = addressService.getAddressById(id);
+        if (address != null) {
+            addressService.deleteAddress(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
