@@ -3,6 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.dto.AddressDTO;
 import com.example.demo.model.Address;
 import com.example.demo.service.AddressService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,16 +55,14 @@ public class AddressController {
         }
     }
 
-    // POST create new address
     @PostMapping
-    public ResponseEntity<AddressDTO> createAddress(@RequestBody AddressDTO addressDTO) {
+    public ResponseEntity<AddressDTO> createAddress(@Valid @RequestBody AddressDTO addressDTO) {
         Address createdAddress = addressService.createAddress(addressDTO);
         return ResponseEntity.ok(convertToDTO(createdAddress));
     }
 
-    // Update existing address
     @PutMapping("/{id}")
-    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long id, @RequestBody AddressDTO addressDTO) {
+    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressDTO addressDTO) {
         Address updatedAddress = addressService.updateAddress(id, addressDTO);
         if (updatedAddress != null) {
             return ResponseEntity.ok(convertToDTO(updatedAddress));
