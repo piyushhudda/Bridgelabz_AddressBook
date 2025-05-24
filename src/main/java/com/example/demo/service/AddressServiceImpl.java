@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AddressDTO;
+import com.example.demo.exception.AddressBookException;
 import com.example.demo.model.Address;
 import com.example.demo.repository.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,10 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+ // Inside AddressService
     public Address getAddressById(Long id) {
-        Optional<Address> addressOpt = addressRepository.findById(id);
-        return addressOpt.orElse(null);
+        return addressRepository.findById(id)
+                .orElseThrow(() -> new AddressBookException("Address with ID " + id + " not found."));
     }
 
     @Override

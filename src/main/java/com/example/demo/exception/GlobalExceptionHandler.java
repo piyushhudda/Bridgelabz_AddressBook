@@ -22,4 +22,13 @@ public class GlobalExceptionHandler {
         });
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+ // Handler for AddressBookException
+    @ExceptionHandler(AddressBookException.class)
+    public ResponseEntity<Map<String, String>> handleAddressBookException(AddressBookException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        // Or choose an appropriate status like BAD_REQUEST, depending on your needs
+    }
+    
 }

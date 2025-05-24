@@ -44,16 +44,6 @@ public class AddressController {
         return ResponseEntity.ok(dtos);
     }
 
-    // Get address by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<AddressDTO> getAddress(@PathVariable Long id) {
-        Address address = addressService.getAddressById(id);
-        if (address != null) {
-            return ResponseEntity.ok(convertToDTO(address));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
     @PostMapping
     public ResponseEntity<AddressDTO> createAddress(@Valid @RequestBody AddressDTO addressDTO) {
@@ -61,26 +51,27 @@ public class AddressController {
         return ResponseEntity.ok(convertToDTO(createdAddress));
     }
 
+ // Get address by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<AddressDTO> getAddress(@PathVariable Long id) {
+        Address address = addressService.getAddressById(id); // throws if not found
+        return ResponseEntity.ok(convertToDTO(address));
+    }
+
+    // Update address
     @PutMapping("/{id}")
     public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressDTO addressDTO) {
         Address updatedAddress = addressService.updateAddress(id, addressDTO);
-        if (updatedAddress != null) {
-            return ResponseEntity.ok(convertToDTO(updatedAddress));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        // Assuming your update method also throws if not found
+        return ResponseEntity.ok(convertToDTO(updatedAddress));
     }
 
     // Delete address
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
-        // Check if address exists before delete
-        Address address = addressService.getAddressById(id);
-        if (address != null) {
-            addressService.deleteAddress(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        // This will throw if address not found
+        addressService.getAddressById(id);
+        addressService.deleteAddress(id);
+        return ResponseEntity.ok().build();
     }
 }
